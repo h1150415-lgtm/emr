@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MedLingua｜多國語言隨身電子病歷</title>
+<style>
+  :root{
+    --navy:#183b67;
+    --blue:#2f6fb3;
+    --sky:#eaf5ff;
+    --ice:#f5faff;
+    --lav:#eeeaff;
+    --lav2:#f7f5ff;
+    --text:#20324a;
+    --muted:#70839b;
+    --line:#dce8f4;
+    --white:#ffffff;
+    --success:#3fa783;
+    --shadow:0 18px 50px rgba(42,83,125,.12);
+    --radius:22px;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+    color:var(--text);
+    background:linear-gradient(135deg,#f3f9ff 0%,#eef7ff 46%,#f5f2ff 100%);
+    min-height:100vh;
+  }
+  button,select{font:inherit}
+  button{cursor:pointer}
+
+  .app{display:flex;min-height:100vh}
+  .sidebar{
+    width:250px;
+    padding:28px 18px;
+    background:rgba(255,255,255,.86);
+    border-right:1px solid rgba(220,232,244,.9);
+    backdrop-filter:blur(18px);
+    position:sticky;top:0;height:100vh;
+  }
+  .brand{display:flex;align-items:center;gap:12px;padding:4px 10px 28px}
+  .brand-icon{
+    width:42px;height:42px;border-radius:14px;
+    display:grid;place-items:center;color:#fff;font-size:21px;font-weight:800;
+    background:linear-gradient(145deg,#3f86d0,#6b7fd9);
+    box-shadow:0 10px 22px rgba(63,134,208,.25);
+  }
+  .brand h1{font-size:17px;margin:0;color:var(--navy)}
+  .brand span{font-size:11px;color:var(--muted)}
+  .nav{display:grid;gap:8px}
+  .nav button{
+    border:0;background:transparent;color:#657b94;text-align:left;
+    padding:13px 14px;border-radius:14px;display:flex;align-items:center;gap:12px;
+    transition:.2s;
+  }
+  .nav button:hover,.nav button.active{background:var(--sky);color:var(--blue);font-weight:700}
+  .nav .icon{width:22px;text-align:center}
+  .sidebar-bottom{
+    position:absolute;left:18px;right:18px;bottom:20px;
+    padding:14px;border-radius:18px;background:var(--lav2);font-size:12px;color:#6e6b91;
+  }
+
+  .main{flex:1;padding:28px 34px 50px;max-width:1500px;margin:auto;width:100%}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:25px}
+  .welcome h2{margin:0 0 5px;font-size:27px;color:var(--navy)}
+  .welcome p{margin:0;color:var(--muted);font-size:13px}
+  .actions{display:flex;align-items:center;gap:10px}
+  .lang-wrap{
+    background:var(--white);border:1px solid var(--line);padding:4px 9px;border-radius:13px;
+    box-shadow:0 6px 20px rgba(44,87,125,.06);
+  }
+  select{border:0;outline:0;color:var(--navy);background:transparent;font-weight:650;padding:7px}
+  .avatar{
+    width:42px;height:42px;border-radius:50%;display:grid;place-items:center;
+    color:#fff;font-weight:800;background:linear-gradient(145deg,#5d91c8,#8d86d5);
+  }
+
+  .hero{
+    background:linear-gradient(120deg,#1e4f83,#3479bb 56%,#6675c8);
+    color:white;border-radius:28px;padding:27px 30px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;margin-bottom:22px;
+  }
+  .hero:after{
+    content:"";position:absolute;width:280px;height:280px;border-radius:50%;
+    background:rgba(255,255,255,.08);right:-80px;top:-120px;
+  }
+  .patient{display:flex;align-items:center;gap:18px;position:relative;z-index:1}
+  .patient-photo{
+    width:70px;height:70px;border-radius:22px;background:rgba(255,255,255,.18);
+    display:grid;place-items:center;font-size:29px;border:1px solid rgba(255,255,255,.25);
+  }
+  .patient h3{font-size:22px;margin:0 0 5px}
+  .patient p{margin:0;color:#dceeff;font-size:13px}
+  .patient-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .tag{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.14);font-size:11px}
+  .hero-actions{margin-left:auto;display:flex;gap:9px;position:relative;z-index:1}
+  .hero-btn{
+    border:1px solid rgba(255,255,255,.28);color:white;background:rgba(255,255,255,.12);
+    padding:9px 13px;border-radius:12px;font-size:12px;
+  }
+  .hero-btn:hover{background:rgba(255,255,255,.2)}
+
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px}
+  .card{
+    background:rgba(255,255,255,.9);border:1px solid rgba(220,232,244,.95);
+    border-radius:var(--radius);padding:22px;box-shadow:0 10px 35px rgba(53,91,126,.07);
+  }
+  .card.full{grid-column:1/-1}
+  .card-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .card-title h3{margin:0;font-size:17px;color:var(--navy)}
+  .card-title small{color:var(--muted);font-size:11px}
+  .edit{
+    border:0;background:var(--lav);color:#6765a2;border-radius:10px;padding:7px 10px;font-size:11px
+  }
+
+  .info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .info{
+    padding:14px;border-radius:16px;background:var(--ice);border:1px solid #e5f0f9;
+  }
+  .info label{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}
+  .info strong{font-size:14px;color:var(--text)}
+  .info em{font-style:normal;color:#7891ab;font-size:11px;display:block;margin-top:3px}
+
+  .timeline{position:relative;padding-left:22px}
+  .timeline:before{content:"";position:absolute;left:5px;top:7px;bottom:8px;width:2px;background:#dceaf7}
+  .event{position:relative;padding:0 0 18px}
+  .event:last-child{padding-bottom:0}
+  .dot{position:absolute;left:-22px;top:3px;width:12px;height:12px;border-radius:50%;background:#6f96cf;border:3px solid #e9f4ff}
+  .event-date{font-size:10px;color:#7892ac;margin-bottom:3px}
+  .event-title{font-size:13px;font-weight:750;color:var(--navy)}
+  .event-note{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
+
+  .med-list{display:grid;gap:10px}
+  .med{
+    display:flex;align-items:center;gap:12px;padding:12px;border-radius:15px;
+    background:linear-gradient(90deg,#f0f8ff,#f7f6ff);border:1px solid #e5edf7
+  }
+  .med-icon{width:35px;height:35px;border-radius:11px;background:#dceeff;display:grid;place-items:center}
+  .med-info{flex:1}.med-info b{display:block;font-size:12px}.med-info span{font-size:10px;color:var(--muted)}
+  .status{font-size:10px;padding:5px 8px;border-radius:999px;background:#e3f6ef;color:#31866b}
+
+  .language-box{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  .language{
+    border:1px solid var(--line);background:#fff;border-radius:16px;padding:13px 8px;
+    text-align:center;transition:.2s
+  }
+  .language:hover,.language.active{transform:translateY(-2px);border-color:#9bc5e9;background:var(--sky)}
+  .language .flag{font-size:22px;margin-bottom:5px}
+  .language b{display:block;font-size:11px;color:var(--navy)}
+  .language span{font-size:9px;color:var(--muted)}
+
+  .translation{
+    display:grid;grid-template-columns:1fr 44px 1fr;align-items:center;gap:12px;
+  }
+  .speech{
+    min-height:115px;padding:15px;border-radius:16px;background:#f5faff;border:1px solid #e2edf7;
+  }
+  .speech.alt{background:#f7f5ff;border-color:#e9e5fa}
+  .speech label{font-size:10px;color:var(--muted);display:block;margin-bottom:7px}
+  .speech p{font-size:13px;line-height:1.65;margin:0}
+  .swap{width:40px;height:40px;border-radius:50%;border:0;background:#e7f1fb;color:#4e80b4;font-size:18px}
+
+  .privacy{
+    display:flex;gap:12px;align-items:flex-start;margin-top:20px;padding:15px 17px;
+    border-radius:16px;background:#f4f8fc;color:#70839b;font-size:11px;line-height:1.55
+  }
+  .privacy b{color:#486887}
+  .toast{
+    position:fixed;right:24px;bottom:24px;background:#1d4f82;color:white;padding:12px 16px;
+    border-radius:13px;box-shadow:0 15px 35px rgba(29,79,130,.25);
+    transform:translateY(120px);opacity:0;transition:.25s;font-size:12px;z-index:10
+  }
+  .toast.show{transform:translateY(0);opacity:1}
+
+  @media(max-width:1000px){
+    .sidebar{width:76px;padding:20px 10px}.brand h1,.brand span,.nav button span,.sidebar-bottom{display:none}
+    .brand{justify-content:center;padding:4px 0 25px}.nav button{justify-content:center;padding:12px}
+    .main{padding:22px}.grid{grid-template-columns:1fr}.card.full{grid-column:auto}
+  }
+  @media(max-width:650px){
+    .main{padding:16px}.topbar{align-items:flex-start}.welcome h2{font-size:22px}
+    .hero{padding:20px}.hero-actions{display:none}.patient{align-items:flex-start}
+    .language-box{grid-template-columns:repeat(3,1fr)}.translation{grid-template-columns:1fr}
+    .swap{margin:auto;transform:rotate(90deg)}.info-grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">✚</div>
+      <div><h1>MedLingua</h1><span>多國語言電子病歷</span></div>
+    </div>
+    <nav class="nav">
+      <button class="active" onclick="showToast('目前位於病歷總覽')"><span class="icon">▦</span><span>病歷總覽</span></button>
+      <button onclick="showToast('已切換至健康資料')"><span class="icon">♡</span><span>健康資料</span></button>
+      <button onclick="showToast('已切換至用藥紀錄')"><span class="icon">◫</span><span>用藥紀錄</span></button>
+      <button onclick="showToast('已切換至就診紀錄')"><span class="icon">◷</span><span>就診紀錄</span></button>
+      <button onclick="showToast('已切換至語言設定')"><span class="icon">文</span><span>語言設定</span></button>
+    </nav>
+    <div class="sidebar-bottom">🔒 示範介面<br>請勿輸入真實個資</div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="welcome">
+        <h2>我的健康紀錄</h2>
+        <p>一份病歷，多種語言，讓醫療溝通更容易。</p>
+      </div>
+      <div class="actions">
+        <div class="lang-wrap">
+          <select id="globalLang" onchange="changeLanguage(this.value)">
+            <option value="zh">繁體中文</option>
+            <option value="en">English</option>
+            <option value="ko">한국어</option>
+            <option value="ja">日本語</option>
+            <option value="vi">Tiếng Việt</option>
+          </select>
+        </div>
+        <div class="avatar">L</div>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="patient">
+        <div class="patient-photo">👤</div>
+        <div>
+          <h3 id="patientName">陳宣瑄</h3>
+          <p id="patientSub">女性・15 歲・示範病歷編號 ML-2026-0816</p>
+          <div class="patient-tags">
+            <span class="tag">Blood Type A</span>
+            <span class="tag">No Known Allergy</span>
+            <span class="tag">Demo Record</span>
+          </div>
+        </div>
+        <div class="hero-actions">
+          <button class="hero-btn" onclick="printRecord()">列印病歷</button>
+          <button class="hero-btn" onclick="showToast('病歷已暫存（示範）')">儲存</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-title">
+          <h3>👤 個人史</h3>
+          <button class="edit" onclick="showToast('編輯功能為示範模式')">編輯</button>
+        </div>
+        <div class="info-grid">
+          <div class="info"><label>姓名 Name</label><strong>陳宣瑄</strong><em>示範資料</em></div>
+          <div class="info"><label>出生日期 Date of Birth</label><strong>2010 / 12 / 19</strong><em>15 years old</em></div>
+          <div class="info"><label>血型 Blood Type</label><strong>A 型</strong><em>Rh +</em></div>
+          <div class="info"><label>過敏 Allergies</label><strong>無已知藥物過敏</strong><em>No known drug allergies</em></div>
+          <div class="info"><label>生活習慣 Lifestyle</label><strong>不吸菸・不飲酒</strong><em>Non-smoker · No alcohol</em></div>
+          <div class="info"><label>主要語言 Preferred Language</label><strong id="preferredLanguage">繁體中文</strong><em>可切換 English / 한국어 / 日本語 / Tiếng Việt</em></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-title"><h3>🧬 家族史</h3><small>Family History</small></div>
+        <div class="info-grid">
+          <div class="info"><label>父系</label><strong>糖尿病：父系家族</strong><em>Diabetes mellitus · Paternal family history</em></div>
+          <div class="info"><label>母系</label><strong>無已知特殊疾病史</strong><em>No known significant history</em></div>
+          <div class="info"><label>遺傳疾病</label><strong>目前無已知紀錄</strong><em>No known inherited condition</em></div>
+          <div class="info"><label>家族癌症史</label><strong>無已知紀錄</strong><em>No known history</em></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-title"><h3>🩺 疾病史</h3><small>Medical History</small></div>
+        <div class="timeline">
+          <div class="event"><span class="dot"></span><div class="event-date">2024 / 09</div><div class="event-title">季節性過敏性鼻炎</div><div class="event-note">春秋季較明顯，偶爾出現鼻塞與打噴嚏。</div></div>
+          <div class="event"><span class="dot"></span><div class="event-date">2023 / 12</div><div class="event-title">急性上呼吸道感染</div><div class="event-note">門診治療後恢復，無住院紀錄。</div></div>
+          <div class="event"><span class="dot"></span><div class="event-date">Childhood</div><div class="event-title">兒童常規疫苗接種</div><div class="event-note">依一般兒童預防接種時程完成（示範資料）。</div></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-title"><h3>🔪 手術史</h3><small>Surgical History</small></div>
+        <div class="timeline">
+          <div class="event"><span class="dot"></span><div class="event-date">目前</div><div class="event-title">無手術史</div><div class="event-note">過去沒有接受過手術。</div></div>
+        </div>
+      </section>
+
+      
+
+      <section class="card">
+        <div class="card-title"><h3>🌐 語言切換</h3><small>One record · Multiple languages</small></div>
+        <div class="language-box">
+          <button class="language active" onclick="selectLang('zh',this)"><div class="flag">🇹🇼</div><b>繁體中文</b><span>Traditional Chinese</span></button>
+          <button class="language" onclick="selectLang('en',this)"><div class="flag">🇺🇸</div><b>English</b><span>英文</span></button>
+          <button class="language" onclick="selectLang('ko',this)"><div class="flag">🇰🇷</div><b>한국어</b><span>韓文</span></button>
+          <button class="language" onclick="selectLang('ja',this)"><div class="flag">🇯🇵</div><b>日本語</b><span>日文</span></button>
+          <button class="language" onclick="selectLang('vi',this)"><div class="flag">🇻🇳</div><b>Tiếng Việt</b><span>越南文</span></button>
+        </div>
+
+        <div class="translation" style="margin-top:15px">
+          <div class="speech">
+            <label>目前病歷內容 · 繁體中文</label>
+            <p id="sourceText">患者有季節性過敏性鼻炎病史，無已知藥物過敏。</p>
+          </div>
+          <button class="swap" onclick="swapText()" title="切換語言">⇄</button>
+          <div class="speech alt">
+            <label id="targetLabel">English · 英文</label>
+            <p id="targetText">The patient has a history of seasonal allergic rhinitis and no known drug allergies.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card full">
+        <div class="card-title"><h3>📋 就診摘要</h3><small>Clinical Summary</small></div>
+        <div class="info-grid">
+          <div class="info"><label>主要問題 Chief Complaint</label><strong>季節性鼻塞、打噴嚏</strong></div>
+          <div class="info"><label>目前狀態 Current Status</label><strong>穩定，依需要使用藥物</strong></div>
+          <div class="info"><label>重要提醒 Important Note</label><strong>就診時可直接切換醫療溝通語言</strong></div>
+          <div class="info"><label>資料版本 Record Version</label><strong>v1.0 · 2026 / 08 / 16</strong></div>
+        </div>
+        <div class="privacy">🔒 <span><b>隱私提醒：</b>本頁為前端課程展示用介面；你提供的姓名、生日、性別與血型屬個人資料，請勿公開分享此檔案。請勿將真實姓名、身分證字號、電話、地址、病歷號、檢驗報告或其他可識別個人的醫療資料直接貼到公開 AI 工具或未經確認的服務中。</span></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const translations = {
+  zh: {label:"繁體中文", text:"患者有季節性過敏性鼻炎病史，無已知藥物過敏。"},
+  en: {label:"English · 英文", text:"The patient has a history of seasonal allergic rhinitis and no known drug allergies."},
+  ko: {label:"한국어 · 韓文", text:"환자는 계절성 알레르기 비염 병력이 있으며 알려진 약물 알레르기는 없습니다."},
+  ja: {label:"日本語 · 日文", text:"患者には季節性アレルギー性鼻炎の既往があり、既知の薬物アレルギーはありません。"},
+  vi: {label:"Tiếng Việt · 越南文", text:"Bệnh nhân có tiền sử viêm mũi dị ứng theo mùa và không ghi nhận dị ứng thuốc đã biết."}
+};
+
+function showToast(message){
+  const toast=document.getElementById("toast");
+  toast.textContent=message;
+  toast.classList.add("show");
+  clearTimeout(window.toastTimer);
+  window.toastTimer=setTimeout(()=>toast.classList.remove("show"),2200);
+}
+
+function selectLang(lang, el){
+  document.querySelectorAll(".language").forEach(x=>x.classList.remove("active"));
+  el.classList.add("active");
+  document.getElementById("globalLang").value=lang;
+  changeLanguage(lang);
+}
+
+function changeLanguage(lang){
+  const data=translations[lang] || translations.zh;
+  document.getElementById("targetLabel").textContent=data.label;
+  document.getElementById("targetText").textContent=data.text;
+  document.getElementById("preferredLanguage").textContent=data.label.split(" · ")[0];
+  showToast("已切換至 " + data.label.split(" · ")[0]);
+}
+
+function swapText(){
+  const target=document.getElementById("targetText");
+  const source=document.getElementById("sourceText");
+  const old=source.textContent;
+  source.textContent=target.textContent;
+  target.textContent=old;
+  showToast("已交換左右語言內容");
+}
+
+function printRecord(){
+  window.print();
+}
+
+document.querySelectorAll(".nav button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+  });
+});
+</script>
+</body>
+</html>
